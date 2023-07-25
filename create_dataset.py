@@ -21,7 +21,7 @@ def generate_question_answers(pdf_file_name, page_text, page_number):
 
     # Define the conversation history as a list of messages
     conversation = [
-        {"role": "system", "content": f"Please create multiple questions and answers based on the content of page {page_number} of the {pdf_file_name} document."},
+        {"role": "system", "content": f"Please create multiple short questions and short answers based on the content of page {page_number} of the {pdf_file_name} document."},
         {"role": "user", "content": page_text},
     ]
     # Use OpenAI's GPT-3 to generate a prompt and completion
@@ -31,7 +31,7 @@ def generate_question_answers(pdf_file_name, page_text, page_number):
                 model="gpt-3.5-turbo",
                 messages=conversation,
                 max_tokens=256,
-                temperature=0.3  # Adjust this value to control the randomness of the output
+                temperature=0.1  # Adjust this value to control the randomness of the output
             )
             break
         except (openai.error.ServiceUnavailableError, 

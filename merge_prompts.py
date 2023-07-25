@@ -6,7 +6,7 @@ import os
 all_qa_pairs = []
 
 # Loop through all the files in the output directory that match the pattern
-for filename in glob.glob("cardiology-expert-consult-online-and-print-cardiology-mosby-third-edition_page_*_qa.json"):
+for filename in glob.glob("Braunwald heart disease_page_*_qa.json"):
     # Check if the file contains any JSON data
     with open(filename, 'r') as f:
         try:
