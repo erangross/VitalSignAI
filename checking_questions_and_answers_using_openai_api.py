@@ -68,7 +68,7 @@ def generate_answer(question, page_text):
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=conversation,
-                max_tokens=64,
+                max_tokens=96,
                 temperature=0.1  # Adjust this value to control the randomness of the output
             )
             break
@@ -88,25 +88,6 @@ def generate_answer(question, page_text):
         return response
     else:
         return None
-
-
-def calculate_jaccard_similarity(str1, str2):
-    """
-    Calculate the Jaccard similarity between two strings.
-
-    Args:
-        str1 (str): The first string.
-        str2 (str): The second string.
-
-    Returns:
-        The Jaccard similarity between the two strings.
-    """
-    set1 = set(str1.split())
-    set2 = set(str2.split())
-    intersection = set1.intersection(set2)
-    union = set1.union(set2)
-    return len(intersection) / len(union)
-
 
 def rewrite_answer(answer, filepath, question):
     """
@@ -136,8 +117,6 @@ def main():
     # Load the PDF file
     pdf_file_name = "/home/erangross/MedicalChatGPT/books/atlas-of-nuclear-cardiology-done.pdf"
     pdf_file = fitz.open(pdf_file_name)
-    # Iterate through all JSON files in the directory
-    # Iterate through all JSON files in the directory
     # Iterate through all JSON files in the directory
     for filename in os.listdir(directory):
         if filename.endswith(".json") and "checked" not in filename:

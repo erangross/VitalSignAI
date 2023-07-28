@@ -30,7 +30,7 @@ def generate_question_answers(pdf_file_name, page_text, page_number):
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=conversation,
-                max_tokens=300,
+                max_tokens=400,
                 temperature=0.1  # Adjust this value to control the randomness of the output
             )
             break
