@@ -113,9 +113,9 @@ def rewrite_answer(answer, filepath, question):
 
 def main():
     # Define the directory containing the JSON files
-    directory = "/home/erangross/MedicalChatGPT/datasets/atlas-of-nuclear-cardiology"
+    directory = "/home/erangross/MedicalChatGPT/datasets/Braunwald-heart-disease"
     # Load the PDF file
-    pdf_file_name = "/home/erangross/MedicalChatGPT/books/atlas-of-nuclear-cardiology-done.pdf"
+    pdf_file_name = "/home/erangross/MedicalChatGPT/books/Braunwald-heart-disease-done.pdf"
     pdf_file = fitz.open(pdf_file_name)
     # Iterate through all JSON files in the directory
     for filename in os.listdir(directory):
