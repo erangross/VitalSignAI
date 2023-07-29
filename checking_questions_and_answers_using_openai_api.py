@@ -1,9 +1,9 @@
-import fitz
-import openai
-import json
 import os
-import time
+import json
 import re
+import fitz  # PyMuPDF
+import openai
+import time
 from difflib import SequenceMatcher
 
 
@@ -59,7 +59,7 @@ def generate_answer(question, page_text):
     """
     # Define the conversation history as a list of messages
     conversation = [
-        {"role": "system", "content": f"please generate an answer for the following'{question}' based on the page text."},
+        {"role": "system", "content": f"please generate an answer for the following'{question}' based on the page text only."},
         {"role": "user", "content": page_text},
     ]
     # Use OpenAI's GPT-3 to generate a prompt and completion
@@ -89,6 +89,34 @@ def generate_answer(question, page_text):
     else:
         return None
 
+
+def check_answer(answer, generated_answer):
+    """
+    Check if the generated answer is similar to the answer.
+
+    Args:
+        answer (str): The original answer.
+        generated_answer (str): The generated answer.
+
+    Returns:
+        True if the generated answer is similar to the answer, False otherwise.
+    """
+    # Split the answer and generated answer strings into lists of words
+    answer_words = answer.split()
+    generated_answer_words = generated_answer.split()
+    # Check if most of the words in the answer are also part of the generated answer
+    num_common_words = 0
+    for word in answer_words:
+        if word in generated_answer_words:
+            num_common_words += 1
+    if num_common_words >= len(answer_words) * 0.8:
+        print("The generated answer is similar to the answer.")
+        return True
+    else:
+        print("The generated answer is not similar to the answer.")
+        return False
+
+
 def rewrite_answer(answer, filepath, question):
     """
     Rewrite an answer based on the text on a page.
@@ -111,6 +139,42 @@ def rewrite_answer(answer, filepath, question):
         json.dump(qa_list, f, indent=4)
 
 
+def process_file(filepath, pdf_file):
+    """
+    Process a JSON file containing questions and answers.
+
+    Args:
+        filepath (str): The path to the JSON file.
+        pdf_file (fitz.Document): The PDF file.
+
+    Returns:
+        None.
+    """
+    try:
+        # Load the questions and answers from the JSON file
+        qa_list = load_questions_and_answers(filepath)
+        # Extract the page number from the filename
+        page_number = int(os.path.basename(filepath).split("_")[2])
+        # Iterate through the questions and answers
+        for qa_dict in qa_list:
+            # Extract the question and answer from the dictionary
+            question = qa_dict.get("prompt")
+            answer = qa_dict.get("completion")
+            # Extract the text from the page
+            page_text = extract_text_from_page(pdf_file, page_number)
+            # Generate an answer to the question based on the text on the page
+            generated_answer = generate_answer(question, page_text)
+            # Check if the generated answer is correct according to the page text
+            if generated_answer and not check_answer(answer, generated_answer):
+                # Rewrite the answer based on the text in the PDF file
+                rewrite_answer(generated_answer, filepath, question)
+        # Rename the file to include "checked" in the filename
+        os.rename(filepath, filepath.replace(".json", "_checked.json"))
+        print(f"Finished processing '{filepath}'.")
+    except Exception as e:
+        print(f"Error processing file {filepath}: {e}")
+
+
 def main():
     # Define the directory containing the JSON files
     directory = "/home/erangross/MedicalChatGPT/datasets/Braunwald-heart-disease"
@@ -121,42 +185,8 @@ def main():
     for filename in os.listdir(directory):
         if filename.endswith(".json") and "checked" not in filename:
             filepath = os.path.join(directory, filename)
-            try:
-                # Load the questions and answers from the JSON file
-                qa_list = load_questions_and_answers(filepath)
-                # Extract the page number from the filename
-                page_number = int(filename.split("_")[2])
-                # Iterate through the questions and answers
-                for qa_dict in qa_list:
-                    # Extract the question and answer from the dictionary
-                    question = qa_dict.get("prompt")
-                    answer = qa_dict.get("completion")
-                    # Extract the text from the page
-                    page_text = extract_text_from_page(pdf_file, page_number)
-                    # Generate an answer to the question based on the text on the page
-                    generated_answer = generate_answer(question, page_text)
-                    # Check if the generated answer is correct according to the page text
-                    # Split the answer and generated answer strings into lists of words
-                    answer_words = answer.split()
-                    generated_answer_words = generated_answer.split()
-                    # Check if most of the words in the answer are also part of the generated answer
-                    num_common_words = 0
-                    for word in answer_words:
-                        if word in generated_answer_words:
-                            num_common_words += 1
-                    if num_common_words >= len(answer_words) * 0.8:
-                        print("The generated answer is similar to the answer.")
-                    else:
-                        print("The generated answer is not similar to the answer.")
-                        # Rewrite the answer based on the text in the PDF file
-                        rewrite_answer(generated_answer, filepath, question)
-                # Rename the file to include "checked" in the filename
-                if filepath:
-                    os.rename(filepath, filepath.replace(".json", "_checked.json"))
-            except Exception as e:
-                print(f"Error processing file {filepath}: {e}")
-            print(f"Finished processing '{filename}'.")
+            process_file(filepath, pdf_file)
 
-                        
+
 if __name__ == "__main__":
     main()
