@@ -10,9 +10,16 @@ def load_openai_api_key(api_key):
     openai.api_key = api_key
 
 # This is a helper function to create the output folder if it doesn't exist
-def create_output_folder_if_not_exists(folder_name):
-    if not os.path.exists(folder_name):
-        os.mkdir(folder_name)
+def return_output_folder_name(pdf_file_name):
+    # Get the base name of the PDF file
+    file_name = pdf_file_name.split('.')[0]
+    # Define the output folder
+    output_folder = f"./output/{file_name}/"
+    # Create the output folder if it doesn't exist
+    if not os.path.exists(output_folder):
+        os.mkdir(output_folder)
+    # Return the output folder
+    return output_folder
 
 # This is a helper function to generate questions and answers from a page of text
 def generate_question_answers(pdf_file_name, page_text, page_number):
@@ -96,20 +103,22 @@ def should_skip_pdf_file(pdf_file, output_folder):
 def process_pdf_files():
     print("Processing PDF files...")
     # Iterate through the files in the current directory
-    for file_name in os.listdir():
-        print(f"Checking file '{file_name}'...")
-        if not file_name.endswith(".pdf"):
-            print(f"Skipping non-PDF file '{file_name}'.")
+    for pdf_file_name in os.listdir():
+        print(f"Checking file '{pdf_file_name}'...")
+        if not pdf_file_name.endswith(".pdf"):
+            print(f"Skipping non-PDF file '{pdf_file_name}'.")
             continue
+        # Create the output folder if it doesn't exist
+        output_folder = return_output_folder_name(pdf_file_name)
         # Check if the PDF file has already been processed
-        existing_json_files, last_page_number = should_skip_pdf_file(file_name, output_folder)
-        # If the PDF file has already been processed, skip it
+        existing_json_files, last_page_number = should_skip_pdf_file(pdf_file_name, output_folder)
+        # Open the PDF file
         try:
-            pdf_document = fitz.open(file_name)
+            pdf_document = fitz.open(pdf_file_name)
         except Exception as e:
-            print(f"Error processing '{file_name}': {e}")
+            print(f"Error processing '{pdf_file_name}': {e}")
             continue
-        # If the PDF file has not been processed, process it
+        #Starting with the last page number + 1
         if existing_json_files:
             starting_page = last_page_number + 1
         else:
@@ -172,6 +181,9 @@ def process_pdf_files():
         pdf_document.close()
         # Finish processing the book message.
         print(f"Finish processing the book\n")
+    print("Finished processing PDF files.")
+
+
 
 # This is the main function that is executed when the script is run
 if __name__ == "__main__":
@@ -180,11 +192,7 @@ if __name__ == "__main__":
     # If the OpenAI API key is not set, raise an error
     if not api_key:
         raise ValueError("Please set the OPENAI_API_KEY environment variable")
-    # Define the output folder
-    output_folder = "./output"
     # Load the OpenAI API key
     load_openai_api_key(api_key)
-    # Create the output folder if it doesn't exist
-    create_output_folder_if_not_exists(output_folder)
     # Process the PDF files
     process_pdf_files()
