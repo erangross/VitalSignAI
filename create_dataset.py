@@ -131,15 +131,15 @@ def process_pdf_files():
                 page = pdf_document.load_page(current_page)
                 page_text = page.get_text("text")
             except Exception as e:
-                print(f"Error loading page {current_page} of '{file_name}': {e}")
+                print(f"Error loading page {current_page} of '{pdf_file_name}': {e}")
                 # If there was an error loading the page, retry the connection
                 pdf_document.close()
-                pdf_document = fitz.open(file_name)
+                pdf_document = fitz.open(pdf_file_name)
                 continue
             # Generate questions and answers from the page text
             # Try to generate questions and answers from the page text using OpenAI API
             try:
-                qa_dict = generate_question_answers(file_name, page_text, current_page + 1)
+                qa_dict = generate_question_answers(pdf_file_name, page_text, current_page + 1)
             # Catch OpenAI API errors and retry after 1 minute
             except (openai.error.APIError, openai.error.APIConnectionError, openai.error.InvalidRequestError) as e:
                 print(f"OpenAI API error: {e}")
@@ -147,7 +147,7 @@ def process_pdf_files():
                 time.sleep(60)
             # If no questions and answers were generated, move on to the next page
             if not qa_dict:
-                print(f"No questions and answers generated for page {current_page} of '{file_name}'")
+                print(f"No questions and answers generated for page {current_page} of '{filpdf_file_namee_name}'")
                 current_page += 1
                 continue
             # If questions and answers were generated, extract them from the dictionary
@@ -159,7 +159,7 @@ def process_pdf_files():
                 questions = []
                 answers = []
             # Save the questions and answers to a JSON file
-            output_file_name = f"{os.path.splitext(file_name)[0]}_page_{current_page}_qa.json"
+            output_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_{current_page}_qa.json"
             # Create the output file path
             output_file_path = os.path.join(output_folder, output_file_name)
             # Save the questions and answers to the output file
@@ -175,7 +175,7 @@ def process_pdf_files():
                     if i < len(questions) - 1:
                         output_file.write(",\n")
                 output_file.write("\n]\n")
-            print(f"Questions and answers generated for page {current_page} of '{file_name}' and saved in '{output_folder}' directory.")
+            print(f"Questions and answers generated for page {current_page} of '{pdf_file_name}' and saved in '{output_folder}' directory.")
             current_page += 1
         # Close the PDF document
         pdf_document.close()
