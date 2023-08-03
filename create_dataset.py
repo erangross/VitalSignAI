@@ -28,7 +28,7 @@ def generate_question_answers(pdf_file_name, page_text, page_number):
 
     # Define the conversation history as a list of messages
     conversation = [
-        {"role": "system", "content": f"Please create four questions and answers based on the content of the page only, Generate questions that have clear answers from the page text. {page_number} of the {pdf_file_name} document."},
+        {"role": "system", "content": f"Please create eight questions and answers based on the content of the page only, Generate questions that have clear answers from the text page . {page_number} of the {pdf_file_name} document."},
         {"role": "user", "content": page_text},
     ]
     # Use OpenAI's GPT-3 to generate a prompt and completion
@@ -84,7 +84,7 @@ def should_skip_pdf_file(pdf_file, output_folder):
     # Get the base name of the PDF file
     pdf_file_name = os.path.basename(pdf_file)
     # Get the base name of the JSON file
-    json_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_0_qa.json"
+    json_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_1_qa.json"
     # Get the path to the JSON file
     json_file_path = os.path.join(output_folder, json_file_name)
     # Check if the JSON file exists
