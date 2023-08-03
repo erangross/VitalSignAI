@@ -147,7 +147,7 @@ def process_pdf_files():
                 time.sleep(60)
             # If no questions and answers were generated, move on to the next page
             if not qa_dict:
-                print(f"No questions and answers generated for page {current_page} of '{filpdf_file_namee_name}'")
+                print(f"No questions and answers generated for page {current_page + 1} of '{pdf_file_name}'")
                 current_page += 1
                 continue
             # If questions and answers were generated, extract them from the dictionary
@@ -159,7 +159,7 @@ def process_pdf_files():
                 questions = []
                 answers = []
             # Save the questions and answers to a JSON file
-            output_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_{current_page}_qa.json"
+            output_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_{current_page + 1}_qa.json"
             # Create the output file path
             output_file_path = os.path.join(output_folder, output_file_name)
             # Save the questions and answers to the output file
@@ -175,7 +175,7 @@ def process_pdf_files():
                     if i < len(questions) - 1:
                         output_file.write(",\n")
                 output_file.write("\n]\n")
-            print(f"Questions and answers generated for page {current_page} of '{pdf_file_name}' and saved in '{output_folder}' directory.")
+            print(f"Questions and answers generated for page {current_page + 1} of '{pdf_file_name}' and saved in '{output_folder}' directory.")
             current_page += 1
         # Close the PDF document
         pdf_document.close()
