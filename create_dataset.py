@@ -37,11 +37,11 @@ def generate_question_answers(pdf_file_name, page_text, page_number):
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo-0613",
                 messages=conversation,
-                max_tokens=320,
+                max_tokens=480,
                 temperature=0.1  # Adjust this value to control the randomness of the output
             )
             break
-        except (openai.error.ServiceUnavailableError, 
+        except (openai.error.ServiceUnavailableError, openai.error.Timeout,
                 openai.error.APIConnectionError, openai.error.InvalidRequestError) as e:
             print(f"OpenAI API error: {e}")
             if "This model's maximum context" in str(e):
@@ -122,7 +122,7 @@ def process_pdf_files():
         if existing_json_files:
             starting_page = last_page_number + 1
         else:
-            starting_page = 0
+            starting_page = 1
         # Iterate through the pages in the PDF file
         current_page = starting_page
         while current_page < pdf_document.page_count:
@@ -139,7 +139,7 @@ def process_pdf_files():
             # Generate questions and answers from the page text
             # Try to generate questions and answers from the page text using OpenAI API
             try:
-                qa_dict = generate_question_answers(pdf_file_name, page_text, current_page + 1)
+                qa_dict = generate_question_answers(pdf_file_name, page_text, current_page)
             # Catch OpenAI API errors and retry after 1 minute
             except (openai.error.APIError, openai.error.APIConnectionError, openai.error.InvalidRequestError) as e:
                 print(f"OpenAI API error: {e}")
@@ -147,7 +147,7 @@ def process_pdf_files():
                 time.sleep(60)
             # If no questions and answers were generated, move on to the next page
             if not qa_dict:
-                print(f"No questions and answers generated for page {current_page + 1} of '{pdf_file_name}'")
+                print(f"No questions and answers generated for page {current_page} of '{pdf_file_name}'")
                 current_page += 1
                 continue
             # If questions and answers were generated, extract them from the dictionary
@@ -159,7 +159,7 @@ def process_pdf_files():
                 questions = []
                 answers = []
             # Save the questions and answers to a JSON file
-            output_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_{current_page + 1}_qa.json"
+            output_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_{current_page}_qa.json"
             # Create the output file path
             output_file_path = os.path.join(output_folder, output_file_name)
             # Save the questions and answers to the output file
@@ -175,7 +175,7 @@ def process_pdf_files():
                     if i < len(questions) - 1:
                         output_file.write(",\n")
                 output_file.write("\n]\n")
-            print(f"Questions and answers generated for page {current_page + 1} of '{pdf_file_name}' and saved in '{output_folder}' directory.")
+            print(f"Questions and answers generated for page {current_page} of '{pdf_file_name}' and saved in '{output_folder}' directory.")
             current_page += 1
         # Close the PDF document
         pdf_document.close()
