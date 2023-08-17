@@ -1,7 +1,7 @@
 import json
 
 # Set the path to the JSONL file
-jsonl_file = "/home/erangross/MedicalChatGPT/datasets/combined_qa_all.jsonl"
+jsonl_file = "/home/eran/VitalSignAI/datasets/combined_qa_all.jsonl"
 
 # Initialize counters for the total number of tokens in the prompts and completions
 prompt_tokens = 0
