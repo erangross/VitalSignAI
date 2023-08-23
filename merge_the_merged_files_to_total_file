@@ -1,0 +1,19 @@
+import os
+import json
+
+def merge_all_merged_jsonl_files(input_folder_path):
+    # Get a list of all the subdirectories in the input folder
+    subdirectories = [d for d in os.listdir(input_folder_path) if os.path.isdir(os.path.join(input_folder_path, d))]
+    # Merge all the merged JSONL files in each subdirectory into a single JSONL file for the entire input folder
+    merged_jsonl_file_path = os.path.join(input_folder_path, 'merged.jsonl')
+    with open(merged_jsonl_file_path, 'w') as merged_jsonl_file:
+        for subdirectory in subdirectories:
+            merged_jsonl_file_path = os.path.join(input_folder_path, subdirectory, subdirectory + '_merged.jsonl')
+            if os.path.exists(merged_jsonl_file_path):
+                with open(merged_jsonl_file_path, 'r') as merged_jsonl_file_sub:
+                    for line in merged_jsonl_file_sub:
+                        merged_jsonl_file.write(line)
+
+if __name__ == '__main__':
+    merge_all_merged_jsonl_files('./datasets')
+    
