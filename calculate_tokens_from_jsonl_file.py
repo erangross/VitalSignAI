@@ -21,4 +21,4 @@ with open(jsonl_file, 'r', encoding='utf-8') as f:
 print("Total number of K tokens in prompts:", prompt_tokens / 1000)
 print("Total number of K tokens in completions:", completion_tokens /1000)
 print("Total number of K tokens in prompts and completions:", (prompt_tokens + completion_tokens) / 1000)
-print("Total amount of dollars for the training datasets:", (prompt_tokens + completion_tokens) / 1000 * 0.03)
+print("Total amount of dollars for the training datasets:", (prompt_tokens + completion_tokens) / 1000 * 0.008)
