@@ -28,7 +28,7 @@ def generate_question_answers(pdf_file_name, page_text, page_number):
 
     # Define the conversation history as a list of messages
     conversation = [
-        {"role": "system", "content": f"Please create eight questions and answers based on the content of the page only, Generate questions that have clear answers from the text page . {page_number} of the {pdf_file_name} document."},
+        {"role": "system", "content": f"You are professional cardiology doctor, please create eight questions and answers based on the content of the page . {page_number} of the {pdf_file_name} document."},
         {"role": "user", "content": page_text},
     ]
     # Use OpenAI's GPT-3 to generate a prompt and completion
@@ -84,13 +84,13 @@ def should_skip_pdf_file(pdf_file, output_folder):
     # Get the base name of the PDF file
     pdf_file_name = os.path.basename(pdf_file)
     # Get the base name of the JSON file
-    json_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_1_qa.json"
+    json_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_1_qa.jsonl"
     # Get the path to the JSON file
     json_file_path = os.path.join(output_folder, json_file_name)
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
         # If the JSON file exists, get the list of existing JSON files
-        existing_json_files = [f for f in os.listdir(output_folder) if f.endswith('.json')]
+        existing_json_files = [f for f in os.listdir(output_folder) if f.endswith('.jsonl')]
         # Get the last processed page number
         last_page_number = max([int(f.split('_')[2]) for f in existing_json_files])
         # Return the list of existing JSON file names and the last processed page number
@@ -158,23 +158,17 @@ def process_pdf_files():
             else:
                 questions = []
                 answers = []
-            # Save the questions and answers to a JSON file
-            output_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_{current_page}_qa.json"
+            # Save the questions and answers to a JSONL file
+            output_file_name = f"{os.path.splitext(pdf_file_name)[0]}_page_{current_page}_qa.jsonl"
             # Create the output file path
             output_file_path = os.path.join(output_folder, output_file_name)
             # Save the questions and answers to the output file
             with open(output_file_path, 'w') as output_file:
-                # Save the questions and answers to the output file
-                output_file.write("[\n")
                 # Iterate through the questions and answers
-                for i, (question, answer) in enumerate(zip(questions, answers)):
-                    qa_dict = {"prompt": question, "completion": answer}
-                    # Save the questions and answers to the output file
-                    output_file.write(json.dumps(qa_dict, indent=4))
-                    # Add a comma after each question and answer
-                    if i < len(questions) - 1:
-                        output_file.write(",\n")
-                output_file.write("\n]\n")
+                for question, answer in zip(questions, answers):
+                    qa_dict = {"messages": [{"role": "system", "content": "You are a professional medical doctor"}, {"role": "user", "content": question}, {"role": "assistant", "content": answer}]}
+                    # Save the questions and answers to the output file as a JSONL record
+                    output_file.write(json.dumps(qa_dict) + "\n")
             print(f"Questions and answers generated for page {current_page} of '{pdf_file_name}' and saved in '{output_folder}' directory.")
             current_page += 1
         # Close the PDF document
