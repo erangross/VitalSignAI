@@ -1,7 +1,6 @@
 # We start by importing the required packages
 
 import json
-import os
 import tiktoken
 import numpy as np
 from collections import defaultdict

@@ -1,5 +1,5 @@
 import os
-import json
+
 
 def merge_all_merged_jsonl_files(input_folder_path):
     # Get a list of all the subdirectories in the input folder
